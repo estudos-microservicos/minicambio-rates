@@ -25,3 +25,12 @@ dotnet run --project src/MiniCambio.Rates.Api
 ```
 
 A API sobe em `http://localhost:5001`.
+
+## Docker
+
+```powershell
+docker build -t minicambio-rates-api .
+```
+
+A imagem roda como usuário não-root e escuta na porta `8080`. Para subir o sistema inteiro (bancos, APIs e
+frontend), use o `docker-compose.yml` do repositório `minicambio-infra`.
