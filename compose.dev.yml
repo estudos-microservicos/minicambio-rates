@@ -1,0 +1,24 @@
+# Apenas o Postgres do Rates, para rodar a API com `dotnet run` localmente:
+#   docker compose -f compose.dev.yml up -d
+# Mesmas credenciais e porta do docker-compose do minicambio-infra (não use os dois ao mesmo tempo).
+name: minicambio-rates-dev
+
+services:
+  rates-db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: rates
+      POSTGRES_USER: rates
+      POSTGRES_PASSWORD: rates-local-pwd
+    ports:
+      - "5433:5432"
+    volumes:
+      - rates-db-dev-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h localhost -U rates -d rates"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  rates-db-dev-data:
