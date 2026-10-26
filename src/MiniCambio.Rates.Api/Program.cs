@@ -16,7 +16,7 @@ builder.Logging.AddJsonConsole(options =>
 {
     options.IncludeScopes = true;
     options.UseUtcTimestamp = true;
-    options.TimestampFormat = "yyyy-MM-ddTHH:mm:ss.fffZ ";
+    options.TimestampFormat = "yyyy-MM-ddTHH:mm:ss.fffZ";
 });
 
 builder.Services.Configure<JsonOptions>(options =>
