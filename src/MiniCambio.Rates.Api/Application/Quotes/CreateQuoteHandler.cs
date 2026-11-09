@@ -22,7 +22,9 @@ public sealed class CreateQuoteHandler(
             ?? throw new UnsupportedCurrencyException(currency);
 
         var now = timeProvider.GetUtcNow();
-        var rate = calculator.GetRate(calculator.GetLiveMidRate(baseRate), side);
+        // A cotação usa a mesma taxa ao vivo da consulta (a do cache, se ainda não expirou).
+        var liveMidRate = await calculator.GetLiveMidRateAsync(baseRate, cancellationToken);
+        var rate = calculator.GetRate(liveMidRate.MidRate, side);
         var quote = Quote.Create(
             currency,
             side,

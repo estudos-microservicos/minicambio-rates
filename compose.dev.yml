@@ -1,6 +1,6 @@
-# Apenas o Postgres do Rates, para rodar a API com `dotnet run` localmente:
+# Apenas o Postgres e o Redis do Rates, para rodar a API com `dotnet run` localmente:
 #   docker compose -f compose.dev.yml up -d
-# Mesmas credenciais e porta do docker-compose do minicambio-infra (não use os dois ao mesmo tempo).
+# Mesmas credenciais e portas do docker-compose do minicambio-infra (não use os dois ao mesmo tempo).
 name: minicambio-rates-dev
 
 services:
@@ -16,6 +16,18 @@ services:
       - rates-db-dev-data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -h localhost -U rates -d rates"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # Cache das taxas ao vivo. Só memória: sem disco, um restart começa com o cache vazio (e tudo bem).
+  rates-cache:
+    image: redis:8.10-alpine
+    command: ["redis-server", "--requirepass", "rates-cache-local-pwd", "--save", "", "--appendonly", "no"]
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a rates-cache-local-pwd --no-auth-warning ping | grep -q PONG"]
       interval: 5s
       timeout: 5s
       retries: 10

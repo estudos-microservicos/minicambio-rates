@@ -14,4 +14,8 @@ public sealed class RatesOptions
     /// <summary>Validade de uma cotação, em segundos.</summary>
     [Range(1, 86400)]
     public int QuoteTtlSeconds { get; set; } = 60;
+
+    /// <summary>Por quanto tempo, em segundos, a taxa ao vivo de uma moeda fica no cache (Redis).</summary>
+    [Range(1, 3600)]
+    public int LiveRateCacheSeconds { get; set; } = 300;
 }

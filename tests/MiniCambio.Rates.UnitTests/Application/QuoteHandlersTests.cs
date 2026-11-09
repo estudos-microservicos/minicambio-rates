@@ -13,7 +13,7 @@ public class QuoteHandlersTests
     private readonly InMemoryBaseRateRepository baseRates = new();
     private readonly InMemoryQuoteRepository quotes = new();
     private readonly IOptions<RatesOptions> options =
-        Options.Create(new RatesOptions { SpreadPercent = 0.5m, QuoteTtlSeconds = 60 });
+        Options.Create(new RatesOptions { SpreadPercent = 0.5m, QuoteTtlSeconds = 60, LiveRateCacheSeconds = 300 });
 
     [Fact]
     public async Task CreateQuote_BuySupportedCurrency_PersistsQuoteWithSpreadAndTtl()
@@ -80,7 +80,7 @@ public class QuoteHandlersTests
     [Fact]
     public async Task GetRates_ReturnsBuyAndSellAroundLiveMidRate()
     {
-        var handler = new GetRatesHandler(baseRates, Calculator(0m), time);
+        var handler = new GetRatesHandler(baseRates, Calculator(0m));
 
         var rates = await handler.HandleAsync(CancellationToken.None);
 
@@ -95,7 +95,7 @@ public class QuoteHandlersTests
     [Fact]
     public async Task GetRate_LowercaseCurrency_IsNormalized()
     {
-        var handler = new GetRateHandler(baseRates, Calculator(0m), time);
+        var handler = new GetRateHandler(baseRates, Calculator(0m));
 
         var rate = await handler.HandleAsync("eur", CancellationToken.None);
 
@@ -105,7 +105,7 @@ public class QuoteHandlersTests
     [Fact]
     public async Task GetRate_UnknownCurrency_ThrowsResourceNotFound()
     {
-        var handler = new GetRateHandler(baseRates, Calculator(0m), time);
+        var handler = new GetRateHandler(baseRates, Calculator(0m));
 
         await Assert.ThrowsAsync<ResourceNotFoundException>(() => handler.HandleAsync("XYZ", CancellationToken.None));
     }
@@ -113,5 +113,6 @@ public class QuoteHandlersTests
     private CreateQuoteHandler CreateHandler(decimal variation = 0m) =>
         new(baseRates, quotes, Calculator(variation), options, time);
 
-    private LiveRateCalculator Calculator(decimal variation) => new(new FixedVariationSource(variation), options);
+    private LiveRateCalculator Calculator(decimal variation) =>
+        new(new FixedVariationSource(variation), new InMemoryLiveRateCache(time), options, time);
 }
