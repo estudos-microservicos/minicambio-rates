@@ -87,4 +87,8 @@ app.MapPrometheusScrapingEndpoint();
 app.MapRatesEndpoints();
 app.MapQuotesEndpoints();
 
+// Uma linha no log a cada subida, com o ambiente. No Kubernetes, ajuda a ver no "kubectl logs" que o Pod novo
+// é mesmo da versão nova (Passo 34.5 do curso: versionamento das imagens).
+app.Logger.LogInformation("Rates API pronta para subir no ambiente {Ambiente}", app.Environment.EnvironmentName);
+
 await app.RunAsync();
